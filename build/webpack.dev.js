@@ -28,6 +28,17 @@ module.exports = merge(common , {
         noInfo: false ,
         // 浏览器控制台将显示消息  'none' | 'info' | 'error' | 'warning'
         clientLogLevel: 'none' ,
+        // 跨域代理
+        proxy: [
+            {
+                context: [`/**`],
+                target: 'http://localhost:9093',
+                changeOrigin: true,
+                pathRewrite: {
+                    '^/$': ''
+                }
+            }
+        ]
     } ,
     // 插件
     plugins: [

@@ -1,15 +1,20 @@
 import React , { Component } from 'react';
-import { Input , Button , Table , Divider , Row , Col } from 'antd';
+import { Input , Button , Table , Divider , Row , Col , Popconfirm } from 'antd';
+import axios from 'axios';
 
 const Search = Input.Search;
 
 import './index.css';
+import AddOrEditModal from './AddOrEditModal';
 
 class Index extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            dataList: []
+            dataList: [] ,
+            loading: false ,
+            visible: false ,
+            rowData: null
         };
         this.colums = [ {
             title: '应用名称' ,
@@ -23,30 +28,32 @@ class Index extends Component {
             // width: 100
         } , {
             title: '中文' ,
-            dataIndex: 'zh_CN' ,
-            key: 'zh_CN' ,
+            dataIndex: 'zhCN' ,
+            key: 'zhCN' ,
             // width: 100,
             render: (text , record) => {
-                return record.values.zh_CN;
+                return text;
             }
         } , {
             title: '英文' ,
-            dataIndex: 'en_US' ,
-            key: 'en_US' ,
+            dataIndex: 'enUS' ,
+            key: 'enUS' ,
             render: (text , record) => {
-                return record.values.en_US;
+                return text;
             }
         } , {
             title: '操作' ,
             dataIndex: 'action' ,
             key: 'action' ,
             width: 120 ,
-            render: () => {
+            render: (text , record) => {
                 return (
                     <span>
-                      <a href="javascript:void(0);">修改</a>
+                      <a href="javascript:void(0);" onClick={() => this.onEdit(record)}>修改</a>
                       <Divider type="vertical" />
-                      <a href="javascript:void(0);">删除</a>
+                         <Popconfirm title="确定要删除该记录嘛？" onConfirm={() => this.onDelete(record._id)}>
+                             <a href="javascript:void(0);">删除</a>
+                         </Popconfirm>
                     </span>
                 );
             }
@@ -55,24 +62,79 @@ class Index extends Component {
     
     
     componentDidMount() {
-        const arr = [];
-        for (let i = 0; i < 1000; i++) {
-            arr.push({
-                key: i ,
-                appId: 'ccp' ,
-                appName: 'eCooperate™' ,
-                i18nKey: 'CCP_F_01002' + i ,
-                values: {
-                    en_US: 'Project' ,
-                    zh_CN: '项目' ,
-                }
-            });
-        }
-        this.setState({dataList: arr});
+        this.getList();
     }
     
+    // 查询
+    onSearch = (value) => {
+        this.getList(value);
+    };
+    
+    // 新增
+    onAdd = () => {
+        this.setState({visible: true});
+    };
+    
+    // 获取列表
+    getList = (i18nKey = '') => {
+        this.setState({loading: true});
+        axios({
+            method: 'GET' ,
+            url: '/intl/list' ,
+            params: {
+                i18nKey
+            }
+        }).then(res => {
+            this.setState({loading: false});
+            const dataList = res.data;
+            this.setState({dataList});
+        });
+    };
+    
+    // 关闭模态框
+    onClose = () => {
+        this.setState({visible: false});
+    };
+    
+    // 保存
+    onSave = (data) => {
+        const method = data._id ? 'PUT' : 'POST';
+        const url = data._id ? '/intl/updata' : '/intl/add';
+        axios({
+            method ,
+            url ,
+            data: {
+                appId: 'ccp' ,
+                appName: 'eCooperate™' ,
+                ...data
+            }
+        }).then(() => {
+            this.getList();
+            this.onClose();
+        });
+    };
+    
+    // 删除
+    onDelete = (id) => {
+        axios({
+            method: 'DELETE' ,
+            url: `/intl/delete/` ,
+            params: {
+                _id: id
+            }
+        }).then(() => {
+            this.getList();
+            this.onClose();
+        });
+    };
+    
+    // 编辑
+    onEdit = (rowData) => {
+        this.setState({rowData: rowData , visible: true});
+    };
+    
     render() {
-        const {dataList} = this.state;
+        const {dataList , loading , visible , rowData} = this.state;
         
         return (
             <React.Fragment>
@@ -89,21 +151,24 @@ class Index extends Component {
                             <Search
                                 placeholder="请输入关键词"
                                 enterButton="查询"
-                                onSearch={value => console.log(value)}
+                                onSearch={this.onSearch}
                             /></Col>
                         <Col span={8} offset={6} style={{textAlign: 'right'}}>
-                            <Button type="primary" icon="plus" style={{marginRight: 10}}>新增</Button>
+                            <Button type="primary" icon="plus" style={{marginRight: 10}}
+                                    onClick={this.onAdd}>新增</Button>
                             <Button icon="upload" style={{marginRight: 10}}>导入</Button>
                             <Button icon="download">导出</Button>
                         </Col>
                     </Row>
-                    <Table size="middle" rowkey="key" columns={this.colums} dataSource={dataList} />
+                    <Table loading={loading} size="middle" rowKey="_id" columns={this.colums} dataSource={dataList} />
+                    <AddOrEditModal rowData={rowData} visible={visible} onClose={this.onClose} onSave={this.onSave} />
                 </div>
                 <div style={{
                     textAlign: 'center' ,
                     paddingTop: 10 ,
                     paddingBottom: 10
-                }}>TaiMei &copy; 2019 Created by snowden
+                }}>
+                    TaiMei &copy; 2019 Created by snowden
                 </div>
             </React.Fragment>
         );
