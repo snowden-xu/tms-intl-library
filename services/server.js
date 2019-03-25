@@ -5,8 +5,6 @@ const xlsx = require('node-xlsx');
 const multipart = require('connect-multiparty');
 const multipartMiddleware = multipart();
 const urlencode = require('urlencode');
-const fs = require('fs');
-const stream = require('stream');
 
 
 const DB_URL = 'mongodb://localhost:27017/tms-intl-library';
@@ -109,24 +107,25 @@ app.post('/intl/import', multipartMiddleware, (req, res) => {
 });
 
 app.get('/intl/export',(req,res)=>{
-    /*IntlList.find({i18nKey: {$regex: /^CCP/}}, (err, doc) => {
-        const buffer = xlsx.build([{name: "mySheetName", data: doc._doc}]);
-        fs.writeFileSync('ccp-intl.xlsx', buffer, 'binary');
+    IntlList.find({i18nKey: {$regex: /^CCP/}}, (err, doc) => {
+        console.log(doc)
+        let data = [];
+        let childData = [];
+        doc.forEach(item=>{
+            childData.push(item.i18nKey);
+            childData.push(item.zhCN);
+            childData.push(item.enUS);
+            data.push(childData);
+            childData = [];
+        });
+        const buffer = xlsx.build([{name: "CCP国际化文档", data: data}]);
+        const fileName = urlencode('CCP国际化文档.xlsx');
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition': `filename=${filename}`
-        })
-        res.end(buffer)
-    });*/
-    
-    let data = [[1, 2, 3], [true, false, null, 'sheetjs'], ['foo', 'bar', new Date('2014-02-19T14:30Z'), '0.3'], ['baz', null, 'qux']];
-
-    let buffer = xlsx.build([{name: "mySheetName", data: data}]);
-    
-    
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats');
-    res.setHeader('Content-Disposition', 'attachment; filename=Report.xlsx');
-    res.send(new Buffer(buffer, 'binary'));
+            'Content-Disposition': `filename=${fileName}`
+        });
+        res.send(buffer)
+    });
 });
 
 app.listen(9093, () => {

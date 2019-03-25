@@ -139,10 +139,7 @@ class Index extends Component {
     
     // 导出
     onExport = () => {
-        axios({
-            method: 'GET' ,
-            url: `/intl/export`
-        });
+        window.open(`/intl/export`);
     };
     
     render() {
