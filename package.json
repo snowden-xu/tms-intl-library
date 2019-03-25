@@ -20,6 +20,7 @@
     "node-xlsx": "^0.14.1",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
+    "urlencode": "^1.1.0",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0"
   },
