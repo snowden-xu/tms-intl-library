@@ -5,7 +5,7 @@
   "author": "snowden.xu",
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server --config build/webpack.dev.js --progress",
+    "start": "webpack-dev-server --config build/webpack.dev.js --progress | nodemon services/server.js",
     "build": "webpack --config build/webpack.prod.js --progress"
   },
   "dependencies": {

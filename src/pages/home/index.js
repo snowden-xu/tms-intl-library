@@ -1,8 +1,9 @@
 import React , { Component } from 'react';
-import { Input , Button , Table , Divider , Row , Col , Popconfirm , Upload , message } from 'antd';
+import { Input , Button , Table , Divider , Row , Col , Popconfirm , Upload , message , Dropdown, Menu ,Icon} from 'antd';
 import axios from 'axios';
 
 const Search = Input.Search;
+
 
 import './index.css';
 import AddOrEditModal from './AddOrEditModal';
@@ -20,17 +21,17 @@ class Index extends Component {
             title: '应用名称' ,
             dataIndex: 'appName' ,
             key: 'appName' ,
-            // width: 100
+            width: 150
         } , {
             title: 'i18nKey' ,
             dataIndex: 'i18nKey' ,
             key: 'i18nKey' ,
-            // width: 100
+            width: 150
         } , {
             title: '中文' ,
             dataIndex: 'zhCN' ,
             key: 'zhCN' ,
-            // width: 100,
+            width: 250 ,
             render: (text , record) => {
                 return text;
             }
@@ -76,13 +77,13 @@ class Index extends Component {
     };
     
     // 获取列表
-    getList = (i18nKey = '') => {
+    getList = (keyword = '') => {
         this.setState({loading: true});
         axios({
             method: 'GET' ,
             url: '/intl/list' ,
             params: {
-                i18nKey
+                keyword
             }
         }).then(res => {
             this.setState({loading: false});
@@ -137,14 +138,23 @@ class Index extends Component {
         this.setState({rowData: rowData , visible: true});
     };
     
-    // 导出
+    // 导出excel
     onExport = () => {
         window.open(`/intl/export`);
     };
     
+    // 导出中文语言包
+    onExportProCN = () => {
+        window.open('/int/exportProCN');
+    };
+    
+    // 导出英文语言包
+    onExportProEN = () => {
+        window.open('/int/exportProEN');
+    };
+    
     render() {
         const {dataList , loading , visible , rowData} = this.state;
-        console.log('dataList' , dataList);
         let that = this;
         const props = {
             name: 'file' ,
@@ -152,23 +162,35 @@ class Index extends Component {
             showUploadList: false ,
             onChange(info) {
                 if (info.file.status === 'done') {
-                    message.success('上传成功');
-                    that.getList();
+                    if (info.file.response.success) {
+                        message.success('上传成功');
+                        that.getList();
+                    } else {
+                        message.success(info.file.response.errorMessage);
+                    }
                 } else if (info.file.status === 'error') {
                     message.success('上传失败');
                 }
             } ,
         };
+    
+        const menu = (
+            <Menu>
+                <Menu.Item key="1" onClick={this.onExport}>Excel</Menu.Item>
+                <Menu.Item key="2" onClick={this.onExportProCN}>中文语言包</Menu.Item>
+                <Menu.Item key="3" onClick={this.onExportProEN}>英文语言包</Menu.Item>
+            </Menu>
+        );
         
         return (
             <React.Fragment>
+                <div style={{height: 10}} />
                 <div style={{
                     width: '80%' ,
                     margin: '0 auto' ,
                     background: '#fff' ,
                     padding: 10 ,
-                    // border: '1px solid #ebedf0',
-                    // boxShadow:'rgb(241, 241, 241) 1px 2px 3px 4px'
+                    paddingBottom: 0
                 }}>
                     <Row style={{marginBottom: 10}} gutter={16}>
                         <Col span={10}>
@@ -183,10 +205,22 @@ class Index extends Component {
                             <Upload {...props}>
                                 <Button icon="upload" style={{marginRight: 10}}>导入</Button>
                             </Upload>
-                            <Button icon="download" onClick={this.onExport}>导出</Button>
+                            <Dropdown overlay={menu}>
+                                <Button icon="download">
+                                    导出<Icon type="down" />
+                                </Button>
+                            </Dropdown>
                         </Col>
                     </Row>
-                    <Table loading={loading} size="middle" rowKey="_id" columns={this.colums} dataSource={dataList} />
+                    <Table
+                        loading={loading}
+                        size="middle"
+                        rowKey="_id"
+                        columns={this.colums}
+                        dataSource={dataList}
+                        scroll={{y: '62vh'}}
+                        pagination={{size: 'small' , defaultPageSize: 100}}
+                    />
                     <AddOrEditModal rowData={rowData} visible={visible} onClose={this.onClose} onSave={this.onSave} />
                 </div>
                 <div style={{

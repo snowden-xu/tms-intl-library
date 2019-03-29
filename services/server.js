@@ -5,7 +5,7 @@ const xlsx = require('node-xlsx');
 const multipart = require('connect-multiparty');
 const multipartMiddleware = multipart();
 const urlencode = require('urlencode');
-
+const fs = require('fs');
 
 const DB_URL = 'mongodb://localhost:27017/tms-intl-library';
 mongoose.connect(DB_URL);
@@ -35,6 +35,7 @@ const IntlList = mongoose.model(
 const app = express();
 app.use(bodyParser.json());
 
+// 新增
 app.post('/intl/add' , (req , res) => {
     IntlList.findOne({i18nKey: req.body.i18nKey} , (err , doc) => {
         if (doc) {
@@ -47,18 +48,30 @@ app.post('/intl/add' , (req , res) => {
     });
 });
 
+// 获取列表
 app.get('/intl/list' , (req , res) => {
-    IntlList.find({i18nKey: {$regex: req.query.i18nKey}} , (err , doc) => {
+    const keyword = req.query.keyword; // 获取查询的字段
+    const filter = {
+        $or: [  // 多字段同时匹配
+            {i18nKey: {$regex: keyword , $options: '$i'}} ,
+            {zhCN: {$regex: keyword}} , //  $options: '$i' 忽略大小写
+            {enUS: {$regex: keyword , $options: '$i'}}
+        ]
+    };
+    
+    IntlList.find(filter , (err , doc) => {
         res.json({data: doc , success: true});
     });
 });
 
+// 删除
 app.delete('/intl/delete' , (req , res) => {
     IntlList.remove(req.query , (err , doc) => {
         res.json({...doc , success: true});
     });
 });
 
+// 更新
 app.put('/intl/updata' , (req , res) => {
     IntlList.findOne({i18nKey: req.body.i18nKey} , (err , doc) => {
             if (doc) {
@@ -80,6 +93,7 @@ app.put('/intl/updata' , (req , res) => {
     
 });
 
+// 导入excel
 app.post('/intl/import' , multipartMiddleware , (req , res) => {
     const workSheetsFromFile = xlsx.parse(req.files.file.path);
     const datas = [];
@@ -96,22 +110,37 @@ app.post('/intl/import' , multipartMiddleware , (req , res) => {
             i18nKeys.push(item[ 0 ]);
         }
     });
-    
-    IntlList.find({i18nKey: {$in: i18nKeys}} , (err , doc) => {
-        if (doc.length > 0) {
-            IntlList.deleteMany({i18nKey:{$in: i18nKeys} }, (errT , docT) => {
-                IntlList.insertMany(datas , (err , doc) => {
-                    res.json({success: true});
+    const dupliList = duplicates(i18nKeys);
+    if (dupliList.length > 0) {
+        res.json({success: false , errorMessage: `i18nKey重复: ${dupliList.join()}`});
+    } else {
+        IntlList.find({i18nKey: {$in: i18nKeys}} , (err , doc) => {
+            if (doc.length > 0) {
+                IntlList.deleteMany({i18nKey: {$in: i18nKeys}} , (errT , docT) => {
+                    IntlList.insertMany(datas , (err , doc) => {
+                        res.json({success: true});
+                    });
                 });
-            });
-        } else {
-            IntlList.insertMany(datas , (err , doc) => {
-                res.json({...doc , success: true});
-            });
-        }
-    });
+            } else {
+                IntlList.insertMany(datas , (err , doc) => {
+                    res.json({...doc , success: true});
+                });
+            }
+        });
+    }
 });
 
+function duplicates(arr) {
+    const result = [];
+    arr.forEach(item => {
+        if (arr.indexOf(item) !== arr.lastIndexOf(item) && result.indexOf(item) === -1) {
+            result.push(item);
+        }
+    });
+    return result;
+}
+
+// 导出excel
 app.get('/intl/export' , (req , res) => {
     IntlList.find({i18nKey: {$regex: /^CCP/}} , (err , doc) => {
         let data = [];
@@ -128,6 +157,46 @@ app.get('/intl/export' , (req , res) => {
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ,
             'Content-Disposition': `filename=${fileName}`
+        });
+        res.send(buffer);
+    });
+});
+
+// 导出exportProCN
+app.get('/int/exportProCN' , (req , res) => {
+    IntlList.find({i18nKey: {$regex: /^CCP/}} , (err , doc) => {
+        let data= [];
+        let childData = [];
+        doc.forEach(item => {
+            childData.push(item.i18nKey);
+            childData.push(item.zhCN);
+            data.push(childData.join('='));
+            childData = [];
+        });
+        const buffer = Buffer.from(data.join('\r\n'));
+        res.set({
+            'Content-Type': 'application/octet-stream' ,
+            'Content-Disposition': `filename=ccp_cn.properties`
+        });
+        res.send(buffer);
+    });
+});
+
+// 导出exportProEN
+app.get('/int/exportProEN' , (req , res) => {
+    IntlList.find({i18nKey: {$regex: /^CCP/}} , (err , doc) => {
+        let data= [];
+        let childData = [];
+        doc.forEach(item => {
+            childData.push(item.i18nKey);
+            childData.push(item.enUS);
+            data.push(childData.join('='));
+            childData = [];
+        });
+        const buffer = Buffer.from(data.join('\r\n'));
+        res.set({
+            'Content-Type': 'application/octet-stream' ,
+            'Content-Disposition': `filename=ccp_en.properties`
         });
         res.send(buffer);
     });

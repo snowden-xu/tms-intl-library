@@ -1,9 +1,8 @@
 // 第三方组件
 import React , { Component } from 'react';
-import { Button , Form , Input , Select , Drawer } from 'antd';
+import { Button , Form , Input , Drawer } from 'antd';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
 const {TextArea} = Input;
 
 @Form.create()
@@ -64,12 +63,12 @@ class AddOrEditModal extends Component {
                     <FormItem {...formItemLayout} label={'中文' + '：'}>
                         {getFieldDecorator('zhCN' , {
                             initialValue: zhCN
-                        })(<Input />)}
+                        })(<TextArea autosize/>)}
                     </FormItem>
                     <FormItem {...formItemLayout} label={'英文' + '：'}>
                         {getFieldDecorator('enUS' , {
                             initialValue: enUS
-                        })(<Input />)}
+                        })(<TextArea autosize/>)}
                     </FormItem>
                 </Form>
                 <div

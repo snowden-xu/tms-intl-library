@@ -6,6 +6,8 @@ const merge = require('webpack-merge');
 const common = require('./webpack.common.js');
 // webpack
 const webpack = require('webpack');
+// 得到本机ip
+const getLocalIp = require('./getLocalIp');
 
 module.exports = merge(common , {
     // 模式  'development' | 'production'
@@ -16,6 +18,8 @@ module.exports = merge(common , {
     devServer: {
         // 入口
         contentBase: path.join(__dirname , 'dist') ,
+        // 主机
+        host: getLocalIp(),
         // 端口
         port: 8888 ,
         // 新开页面
