@@ -5,7 +5,6 @@ const xlsx = require('node-xlsx');
 const multipart = require('connect-multiparty');
 const multipartMiddleware = multipart();
 const urlencode = require('urlencode');
-const fs = require('fs');
 
 const DB_URL = 'mongodb://localhost:27017/tms-intl-library';
 mongoose.connect(DB_URL);
@@ -152,7 +151,8 @@ app.get('/intl/export' , (req , res) => {
             data.push(childData);
             childData = [];
         });
-        const buffer = xlsx.build([ {name: 'CCP国际化文档' , data: data} ]);
+        const option = {'!cols': [{ wch: 15 }, { wch: 30 }, { wch: 60 }]};
+        const buffer = xlsx.build([ {name: 'CCP国际化文档' , data: data} ],option);
         const fileName = urlencode('CCP国际化文档.xlsx');
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ,
