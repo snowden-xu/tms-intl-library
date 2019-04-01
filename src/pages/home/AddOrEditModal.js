@@ -1,12 +1,15 @@
 // 第三方组件
-import React , { Component } from 'react';
-import { Button , Form , Input , Drawer } from 'antd';
+import React , { PureComponent } from 'react';
+import { Button , Form , Input , Drawer, Select } from 'antd';
 
 const FormItem = Form.Item;
 const {TextArea} = Input;
+const Option = Select.Option;
+
+import {menuCategroy} from 'utils/enum';
 
 @Form.create()
-class AddOrEditModal extends Component {
+class AddOrEditModal extends PureComponent {
     // 保存
     onSave = () => {
         this.props.form.validateFieldsAndScroll((err , values) => {
@@ -33,7 +36,8 @@ class AddOrEditModal extends Component {
             }
         };
         
-        const i18nKey = rowData ? rowData.i18nKey : null;
+        const i18nKey = rowData ? rowData.i18nKey : "CCP_FF_";
+        const category = rowData ? rowData.category : 'content';
         const zhCN = rowData ? rowData.zhCN : null;
         const enUS = rowData ? rowData.enUS : null;
         
@@ -57,7 +61,22 @@ class AddOrEditModal extends Component {
                             ] ,
                             initialValue: i18nKey
                         })(
-                            <Input />
+                            <Input disabled={rowData}/>
+                        )}
+                    </FormItem>
+                    <FormItem {...formItemLayout} label={'分类' + '：'}>
+                        {getFieldDecorator('category' , {
+                            rules: [
+                                {
+                                    required: true ,
+                                    message: '分类不能为空'
+                                }
+                            ] ,
+                            initialValue: category
+                        })(
+                            <Select disabled={rowData}>
+                                {menuCategroy.map(item=><Option value={item.value} key={item.value} title={item.name}>{item.name}</Option>)}
+                            </Select>
                         )}
                     </FormItem>
                     <FormItem {...formItemLayout} label={'中文' + '：'}>

@@ -22,6 +22,10 @@ const IntlList = mongoose.model(
             type: String ,
             require: true
         } ,
+        category: {
+            type: String,
+            require: true
+        },
         zhCN: {
             type: String
         } ,
@@ -50,15 +54,21 @@ app.post('/intl/add' , (req , res) => {
 // 获取列表
 app.get('/intl/list' , (req , res) => {
     const keyword = req.query.keyword; // 获取查询的字段
-    const filter = {
-        $or: [  // 多字段同时匹配
-            {i18nKey: {$regex: keyword , $options: '$i'}} ,
-            {zhCN: {$regex: keyword}} , //  $options: '$i' 忽略大小写
-            {enUS: {$regex: keyword , $options: '$i'}}
-        ]
-    };
+    const category = req.query.category; // 获取查询的字段
     
-    IntlList.find(filter , (err , doc) => {
+    const filter = (keyword || category) && {
+        $and: [{
+            $or: [  // 多字段同时匹配
+                {i18nKey: {$regex: keyword , $options: '$i'}} ,
+                {zhCN: {$regex: keyword}} , //  $options: '$i' 忽略大小写
+                {enUS: {$regex: keyword , $options: '$i'}},
+            ],
+        },{
+            $or : [ { category: {$regex: category , $options: '$i'} } ]
+        }]
+    } || {};
+    
+    IntlList.find(filter, (err , doc) => {
         res.json({data: doc , success: true});
     });
 });
@@ -102,11 +112,12 @@ app.post('/intl/import' , multipartMiddleware , (req , res) => {
             datas.push({
                 appId: 'ccp' ,
                 appName: 'eCooperate™' ,
-                i18nKey: item[ 0 ] ,
-                zhCN: item[ 1 ] ,
-                enUS: item[ 2 ]
+                category: item[ 0 ],
+                i18nKey: item[ 1 ] ,
+                zhCN: item[ 2 ] ,
+                enUS: item[ 3 ]
             });
-            i18nKeys.push(item[ 0 ]);
+            i18nKeys.push(item[ 1 ]);
         }
     });
     const dupliList = duplicates(i18nKeys);
@@ -121,6 +132,7 @@ app.post('/intl/import' , multipartMiddleware , (req , res) => {
                     });
                 });
             } else {
+                console.log('datas',datas)
                 IntlList.insertMany(datas , (err , doc) => {
                     res.json({...doc , success: true});
                 });
@@ -141,17 +153,20 @@ function duplicates(arr) {
 
 // 导出excel
 app.get('/intl/export' , (req , res) => {
-    IntlList.find({i18nKey: {$regex: /.*?/}} , (err , doc) => {
+    const category = req.query.category;
+    
+    IntlList.find({i18nKey: {$regex: /.*?/}, category: {$regex: category}} , (err , doc) => {
         let data = [];
         let childData = [];
         doc.forEach(item => {
+            childData.push(item.category);
             childData.push(item.i18nKey);
             childData.push(item.zhCN);
             childData.push(item.enUS);
             data.push(childData);
             childData = [];
         });
-        const option = {'!cols': [{ wch: 15 }, { wch: 30 }, { wch: 60 }]};
+        const option = {'!cols': [{ wch: 10 }, { wch: 15 }, { wch: 30 }, { wch: 60 }]};
         const buffer = xlsx.build([ {name: 'CCP国际化文档' , data: data} ],option);
         const fileName = urlencode('CCP国际化文档.xlsx');
         res.set({
@@ -164,7 +179,9 @@ app.get('/intl/export' , (req , res) => {
 
 // 导出exportProCN
 app.get('/int/exportProCN' , (req , res) => {
-    IntlList.find({i18nKey: {$regex: /.*?/}} , (err , doc) => {
+    const category = req.query.category;
+    
+    IntlList.find({i18nKey: {$regex: /.*?/}, category: {$regex: category}} , (err , doc) => {
         let data= [];
         let childData = [];
         doc.forEach(item => {
@@ -184,7 +201,9 @@ app.get('/int/exportProCN' , (req , res) => {
 
 // 导出exportProEN
 app.get('/int/exportProEN' , (req , res) => {
-    IntlList.find({i18nKey: {$regex: /.*?/}} , (err , doc) => {
+    const category = req.query.category;
+    
+    IntlList.find({i18nKey: {$regex: /.*?/}, category: {$regex: category}} , (err , doc) => {
         let data= [];
         let childData = [];
         doc.forEach(item => {
