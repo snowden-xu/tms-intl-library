@@ -171,7 +171,7 @@ app.get('/intl/export' , (req , res) => {
         const fileName = urlencode('CCP国际化文档.xlsx');
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ,
-            'Content-Disposition': `filename=${fileName}`
+            'Content-Disposition': `filename=${category}_${fileName}`
         });
         res.send(buffer);
     });
@@ -193,7 +193,7 @@ app.get('/int/exportProCN' , (req , res) => {
         const buffer = Buffer.from(data.join('\r\n'));
         res.set({
             'Content-Type': 'application/octet-stream' ,
-            'Content-Disposition': `filename=ccp_cn.properties`
+            'Content-Disposition': `filename=${category}_ccp_cn.properties`
         });
         res.send(buffer);
     });
@@ -215,7 +215,7 @@ app.get('/int/exportProEN' , (req , res) => {
         const buffer = Buffer.from(data.join('\r\n'));
         res.set({
             'Content-Type': 'application/octet-stream' ,
-            'Content-Disposition': `filename=ccp_en.properties`
+            'Content-Disposition': `filename=${category}_ccp_en.properties`
         });
         res.send(buffer);
     });
