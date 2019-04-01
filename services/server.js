@@ -141,7 +141,7 @@ function duplicates(arr) {
 
 // 导出excel
 app.get('/intl/export' , (req , res) => {
-    IntlList.find({i18nKey: {$regex: /^CCP/}} , (err , doc) => {
+    IntlList.find({i18nKey: {$regex: /.*?/}} , (err , doc) => {
         let data = [];
         let childData = [];
         doc.forEach(item => {
@@ -164,7 +164,7 @@ app.get('/intl/export' , (req , res) => {
 
 // 导出exportProCN
 app.get('/int/exportProCN' , (req , res) => {
-    IntlList.find({i18nKey: {$regex: /^CCP/}} , (err , doc) => {
+    IntlList.find({i18nKey: {$regex: /.*?/}} , (err , doc) => {
         let data= [];
         let childData = [];
         doc.forEach(item => {
@@ -184,7 +184,7 @@ app.get('/int/exportProCN' , (req , res) => {
 
 // 导出exportProEN
 app.get('/int/exportProEN' , (req , res) => {
-    IntlList.find({i18nKey: {$regex: /^CCP/}} , (err , doc) => {
+    IntlList.find({i18nKey: {$regex: /.*?/}} , (err , doc) => {
         let data= [];
         let childData = [];
         doc.forEach(item => {
