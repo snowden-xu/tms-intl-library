@@ -21,7 +21,7 @@ class AddOrEditModal extends PureComponent {
     };
     
     render() {
-        const {rowData} = this.props;
+        const {rowData, appId} = this.props;
         const {getFieldDecorator} = this.props.form;
         
         // 模态框结构
@@ -36,7 +36,7 @@ class AddOrEditModal extends PureComponent {
             }
         };
         
-        const i18nKey = rowData ? rowData.i18nKey : "CCP_FF_";
+        const i18nKey = rowData ? rowData.i18nKey : `${appId && appId.toUpperCase()}_FF_`;
         const category = rowData ? rowData.category : 'content';
         const zhCN = rowData ? rowData.zhCN : null;
         const enUS = rowData ? rowData.enUS : null;
@@ -82,12 +82,12 @@ class AddOrEditModal extends PureComponent {
                     <FormItem {...formItemLayout} label={'中文' + '：'}>
                         {getFieldDecorator('zhCN' , {
                             initialValue: zhCN
-                        })(<TextArea autosize/>)}
+                        })(<TextArea autoSize/>)}
                     </FormItem>
                     <FormItem {...formItemLayout} label={'英文' + '：'}>
                         {getFieldDecorator('enUS' , {
                             initialValue: enUS
-                        })(<TextArea autosize/>)}
+                        })(<TextArea autoSize/>)}
                     </FormItem>
                 </Form>
                 <div

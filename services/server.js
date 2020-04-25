@@ -55,8 +55,9 @@ app.post('/intl/add' , (req , res) => {
 app.get('/intl/list' , (req , res) => {
     const keyword = req.query.keyword; // 获取查询的字段
     const category = req.query.category; // 获取查询的字段
+    const appId = req.query.appId; // appId
     
-    const filter = (keyword || category) && {
+    const filter = (keyword || category || appId) && {
         $and: [{
             $or: [  // 多字段同时匹配
                 {i18nKey: {$regex: keyword , $options: '$i'}} ,
@@ -65,6 +66,8 @@ app.get('/intl/list' , (req , res) => {
             ],
         },{
             $or : [ { category: {$regex: category , $options: '$i'} } ]
+        },{
+            $or : [ { appId: {$regex: appId , $options: '$i'} } ]
         }]
     } || {};
     
