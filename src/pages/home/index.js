@@ -36,10 +36,10 @@ class Index extends Component {
     };
     this.colums = [
       {
-        title: "应用名称",
-        dataIndex: "appName",
-        key: "appName",
-        width: 150,
+        title: "应用Id",
+        dataIndex: "appId",
+        key: "appId",
+        width: 100,
       },
       {
         title: "分类",
@@ -131,6 +131,10 @@ class Index extends Component {
     });
   };
 
+  onChangeKeyword = (e) => {
+    this.setState({ keyword: e.target.value });
+  };
+
   // 新增
   onAdd = () => {
     this.setState({ visible: true });
@@ -209,21 +213,37 @@ class Index extends Component {
 
   // 导出excel
   onExport = () => {
-    window.open(`/intl/export?category=${this.state.category || ""}`);
+    const { current } = this.props;
+    window.open(
+      `/intl/export?category=${this.state.category || ""}&appId=${current}`
+    );
   };
 
   // 导出中文语言包
   onExportProCN = () => {
-    window.open(`/int/exportProCN?category=${this.state.category || ""}`);
+    const { current } = this.props;
+    window.open(
+      `/int/exportProCN?category=${this.state.category || ""}&appId=${current}`
+    );
   };
 
   // 导出英文语言包
   onExportProEN = () => {
-    window.open(`/int/exportProEN?category=${this.state.category || ""}`);
+    const { current } = this.props;
+    window.open(
+      `/int/exportProEN?category=${this.state.category || ""}&appId=${current}`
+    );
   };
 
   render() {
-    const { dataList, loading, visible, rowData, category } = this.state;
+    const {
+      dataList,
+      loading,
+      visible,
+      rowData,
+      category,
+      keyword,
+    } = this.state;
     const { current } = this.props;
 
     let that = this;
@@ -261,7 +281,6 @@ class Index extends Component {
 
     return (
       <React.Fragment>
-        <div style={{ height: 10 }} />
         <div
           style={{
             width: "100%",
@@ -289,8 +308,10 @@ class Index extends Component {
             </Col>
             <Col span={10}>
               <Search
+                value={keyword}
                 placeholder="请输入关键词"
                 enterButton="查询"
+                onChange={this.onChangeKeyword}
                 onSearch={this.onSearch}
               />
             </Col>
@@ -322,7 +343,7 @@ class Index extends Component {
             rowKey="_id"
             columns={this.colums}
             dataSource={dataList}
-            scroll={{ y: "calc(100vh - 400px)" }}
+            scroll={{ y: "calc(100vh - 370px)" }}
             pagination={{ size: "small", defaultPageSize: 100 }}
           />
           <AddOrEditModal

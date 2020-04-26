@@ -1,13 +1,16 @@
-export const menuCategroy = [{
-    name: '菜单',
-    value: 'menu',
-},{
-    name: '正文',
-    value: 'content'
-}];
+export const menuCategroy = [
+  {
+    name: "菜单",
+    value: "menu",
+  },
+  {
+    name: "正文",
+    value: "content",
+  },
+];
 
 export const AppNameEnum = {
-    'ccp': 'eCooperate™',
-    'etime': 'eTime',
-    'qm': 'QM'
-}
+  ccp: "eCooperate",
+  etime: "eTime",
+  qm: "eQuality",
+};

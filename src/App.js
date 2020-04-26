@@ -13,9 +13,7 @@ class App extends Component {
   }
 
   handleClick = (e) => {
-    this.setState({
-      current: e.key,
-    });
+    this.setState({ current: e.key });
   };
 
   render() {
@@ -33,7 +31,7 @@ class App extends Component {
           >
             <Menu.Item key="ccp">CCP(eCooperate)</Menu.Item>
             <Menu.Item key="etime">eTime(工时)</Menu.Item>
-            <Menu.Item key="qm">QM(稽查)</Menu.Item>
+            <Menu.Item key="qm">eQuality(稽查)</Menu.Item>
           </Menu>
         </Header>
         <Content style={{ padding: "0 50px" }}>
@@ -42,7 +40,7 @@ class App extends Component {
             <Breadcrumb.Item>List</Breadcrumb.Item>
             <Breadcrumb.Item>{current}</Breadcrumb.Item>
           </Breadcrumb>
-          <div style={{ background: "#fff", padding: 24, minHeight: 280 }}>
+          <div style={{ background: "#fff", padding: 10, minHeight: 280 }}>
             <Home current={current} />
           </div>
         </Content>
