@@ -43,17 +43,64 @@ const IntlList = mongoose.model(
 const app = express();
 app.use(bodyParser.json());
 
+// 数字补零操作
+function prefixInteger(num, length) {
+  return (Array(length).join("0") + num).slice(-length);
+}
+
+// 获取当前分类中的最大key的值
+function getMaxi18nKeyNum(doc) {
+  let maxi18nKeyNum = 0;
+  if (doc && Array.isArray(doc)) {
+    doc.forEach((item) => {
+      if (item.i18nKey) {
+        const i18nKeyArr = item.i18nKey.split("_");
+        const itemi18nKeyNum = parseInt(i18nKeyArr[2]);
+        if (itemi18nKeyNum > maxi18nKeyNum) {
+          maxi18nKeyNum = itemi18nKeyNum;
+        }
+      }
+    });
+  }
+  maxi18nKeyNum = prefixInteger(maxi18nKeyNum + 1, 5);
+  return maxi18nKeyNum;
+}
+
+// 根据最大key组装成i18nKey
+function assembleI18nKey(appId, category, maxi18nKeyNum) {
+  return category === "menu"
+    ? `${appId.toUpperCase()}_F_${maxi18nKeyNum}`
+    : `${appId.toUpperCase()}_FF_${maxi18nKeyNum}`;
+}
+
 // 新增
 app.post("/intl/add", (req, res) => {
-  IntlList.findOne({ i18nKey: req.body.i18nKey }, (err, doc) => {
-    if (doc) {
-      res.json({ success: false, errorMessage: "i18nKey不能重复" });
-    } else {
-      IntlList.create(req.body, (err, doc) => {
-        res.json({ ...doc, success: true });
+  const category = req.body.category;
+  const appId = req.body.appId;
+  // 如果是etime走老规则
+  if (appId === "etime") {
+    IntlList.findOne({ i18nKey: req.body.i18nKey }, (err, doc) => {
+      if (doc) {
+        res.json({ success: false, errorMessage: "i18nKey不能重复" });
+      } else {
+        IntlList.create(req.body, (err, doc) => {
+          res.json({ ...doc, success: true });
+        });
+      }
+    });
+  } else {
+    if (category) {
+      IntlList.find({ category, appId }, (err, doc) => {
+        const maxi18nKeyNum = getMaxi18nKeyNum(doc);
+        if (maxi18nKeyNum) {
+          req.body.i18nKey = assembleI18nKey(appId, category, maxi18nKeyNum);
+          IntlList.create(req.body, (err, docT) => {
+            res.json({ ...docT, success: true });
+          });
+        }
       });
     }
-  });
+  }
 });
 
 // 获取列表
@@ -148,7 +195,6 @@ app.post("/intl/import", multipartMiddleware, (req, res) => {
           });
         });
       } else {
-        console.log("datas", datas);
         IntlList.insertMany(datas, (err, doc) => {
           res.json({ ...doc, success: true });
         });
