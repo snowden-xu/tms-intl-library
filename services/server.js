@@ -105,9 +105,11 @@ app.post("/intl/add", (req, res) => {
 
 // 获取列表
 app.get("/intl/list", (req, res) => {
-  const keyword = req.query.keyword; // 获取查询的字段
+  const keyword = req.query.keyword ? req.query.keyword.trim() : ''; // 获取查询的字段
   const category = req.query.category; // 获取查询的字段
   const appId = req.query.appId; // appId
+  const fuzzyMatch = req.query.fuzzyMatch; // 模糊匹配（默认精确匹配）
+  const filterKey = JSON.parse(fuzzyMatch) ? '$regex' : '$eq';
 
   const filter =
     ((keyword || category || appId) && {
@@ -115,9 +117,9 @@ app.get("/intl/list", (req, res) => {
         {
           $or: [
             // 多字段同时匹配
+            { zhCN:  { [filterKey]: keyword } }, //  $options: '$i' 忽略大小写
+            { enUS: { [filterKey]: keyword } },
             { i18nKey: { $regex: keyword, $options: "$i" } },
-            { zhCN: { $regex: keyword } }, //  $options: '$i' 忽略大小写
-            { enUS: { $regex: keyword, $options: "$i" } },
           ],
         },
         {

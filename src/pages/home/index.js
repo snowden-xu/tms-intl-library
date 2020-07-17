@@ -13,6 +13,7 @@ import {
   Menu,
   Icon,
   Select,
+  Checkbox
 } from "antd";
 import axios from "axios";
 
@@ -33,6 +34,7 @@ class Index extends Component {
       rowData: null,
       category: undefined,
       keyword: "",
+      fuzzyMatch: false, // 模糊匹配
     };
     this.colums = [
       {
@@ -144,7 +146,8 @@ class Index extends Component {
   getList = (
     keyword = this.state.keyword,
     category = this.state.category || "",
-    appId = this.props.current || "ccp"
+    appId = this.props.current || "ccp",
+    fuzzyMatch = this.state.fuzzyMatch
   ) => {
     this.setState({ loading: true });
     axios({
@@ -154,6 +157,7 @@ class Index extends Component {
         keyword,
         category,
         appId,
+        fuzzyMatch,
       },
     }).then((res) => {
       this.setState({ loading: false });
@@ -235,6 +239,11 @@ class Index extends Component {
     );
   };
 
+  // 开启模糊匹配
+  onChangeCheckbox = (e) => {
+    this.setState({fuzzyMatch: e.target.checked})
+  }
+
   render() {
     const {
       dataList,
@@ -243,6 +252,7 @@ class Index extends Component {
       rowData,
       category,
       keyword,
+      fuzzyMatch,
     } = this.state;
     const { current } = this.props;
 
@@ -290,7 +300,7 @@ class Index extends Component {
             paddingBottom: 0,
           }}
         >
-          <Row style={{ marginBottom: 10 }} gutter={16}>
+          <Row style={{ marginBottom: 10, display: 'flex', alignItems: "center" }} gutter={16}>
             <Col span={3}>
               <Select
                 style={{ width: "100%" }}
@@ -315,7 +325,10 @@ class Index extends Component {
                 onSearch={this.onSearch}
               />
             </Col>
-            <Col span={8} offset={3} style={{ textAlign: "right" }}>
+            <Col span={3}>
+              <Checkbox onChange={this.onChangeCheckbox} checked={fuzzyMatch}>模糊匹配</Checkbox>
+            </Col>
+            <Col span={7} offset={1} style={{ textAlign: "right" }}>
               <Button
                 type="primary"
                 icon="plus"
