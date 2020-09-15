@@ -41,6 +41,8 @@ class AddOrEditModal extends PureComponent {
     const category = rowData ? rowData.category : "content";
     const zhCN = rowData ? rowData.zhCN : null;
     const enUS = rowData ? rowData.enUS : null;
+    const wordClass = rowData ? rowData.wordClass : null;
+    const description = rowData ? rowData.description : null;
 
     return (
       <Drawer
@@ -92,6 +94,16 @@ class AddOrEditModal extends PureComponent {
           <FormItem {...formItemLayout} label={"英文" + "："}>
             {getFieldDecorator("enUS", {
               initialValue: enUS,
+            })(<TextArea autoSize />)}
+          </FormItem>
+          <FormItem {...formItemLayout} label={"词性" + "："}>
+            {getFieldDecorator("wordClass", {
+              initialValue: wordClass,
+            })(<TextArea autoSize />)}
+          </FormItem>
+          <FormItem {...formItemLayout} label={"说明" + "："}>
+            {getFieldDecorator("description", {
+              initialValue: description,
             })(<TextArea autoSize />)}
           </FormItem>
         </Form>

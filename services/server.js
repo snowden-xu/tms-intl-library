@@ -37,6 +37,12 @@ const IntlList = mongoose.model(
     enUS: {
       type: String,
     },
+    wordClass: {
+      type: String,
+    },
+    description:{
+      type: String,
+    }
   })
 );
 
@@ -178,6 +184,8 @@ app.post("/intl/import", multipartMiddleware, (req, res) => {
         i18nKey: item[2],
         zhCN: item[3],
         enUS: item[4],
+        wordClass: item[5],
+        description: item[6]
       });
       i18nKeys.push(item[2]);
     }
@@ -238,6 +246,8 @@ app.get("/intl/export", (req, res) => {
         childData.push(item.i18nKey);
         childData.push(item.zhCN);
         childData.push(item.enUS);
+        childData.push(item.wordClass);
+        childData.push(item.description);
         data.push(childData);
         childData = [];
       });

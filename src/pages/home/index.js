@@ -41,13 +41,13 @@ class Index extends Component {
         title: "应用Id",
         dataIndex: "appId",
         key: "appId",
-        width: 100,
+        width: 80,
       },
       {
         title: "分类",
         dataIndex: "category",
         key: "category",
-        width: 100,
+        width: 80,
         render: (text) => {
           const category = menuCategroy.find((item) => {
             return item.value === text;
@@ -78,6 +78,18 @@ class Index extends Component {
         render: (text) => {
           return text;
         },
+      },
+      {
+        title: "词性",
+        dataIndex: "wordClass",
+        key: "wordClass",
+        width: 80,
+      },
+      {
+        title: "说明",
+        dataIndex: "description",
+        key: "description",
+        width: 150,
       },
       {
         title: "操作",
