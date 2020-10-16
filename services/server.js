@@ -9,6 +9,7 @@ const AppNameEnum = {
   ccp: "eCooperate",
   etime: "eTime",
   qm: "eQuality",
+  bi: 'bi'
 };
 
 const DB_URL = "mongodb://localhost:27017/tms-intl-library";
