@@ -47,7 +47,7 @@ class Index extends Component {
         title: "分类",
         dataIndex: "category",
         key: "category",
-        width: 80,
+        width: 50,
         render: (text) => {
           const category = menuCategroy.find((item) => {
             return item.value === text;
@@ -59,7 +59,7 @@ class Index extends Component {
         title: "i18nKey",
         dataIndex: "i18nKey",
         key: "i18nKey",
-        width: 150,
+        width: 100,
       },
       {
         title: "中文",
@@ -89,13 +89,16 @@ class Index extends Component {
         title: "说明",
         dataIndex: "description",
         key: "description",
-        width: 150,
+        width: 250,
+        render: (text) => {
+           return <div style={{whiteSpace:'pre-Wrap'}}>{text}</div>
+        },
       },
       {
         title: "操作",
         dataIndex: "action",
         key: "action",
-        width: 120,
+        width: 100,
         render: (text, record) => {
           return (
             <span>
