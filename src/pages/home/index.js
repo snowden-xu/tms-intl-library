@@ -59,7 +59,7 @@ class Index extends Component {
         title: "i18nKey",
         dataIndex: "i18nKey",
         key: "i18nKey",
-        width: 100,
+        width: 150,
       },
       {
         title: "中文",

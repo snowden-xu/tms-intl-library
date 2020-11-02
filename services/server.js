@@ -9,7 +9,8 @@ const AppNameEnum = {
   ccp: "eCooperate",
   etime: "eTime",
   qm: "eQuality",
-  bi: 'bi'
+  bi: 'bi',
+  'bi-etmf': '"bi-etmf'
 };
 
 const DB_URL = "mongodb://localhost:27017/tms-intl-library";
@@ -133,7 +134,7 @@ app.get("/intl/list", (req, res) => {
           $or: [{ category: { $regex: category, $options: "$i" } }],
         },
         {
-          $or: [{ appId: { $regex: appId, $options: "$i" } }],
+          $or: [{ appId: { $eq: appId } }],
         },
       ],
     }) ||

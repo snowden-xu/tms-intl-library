@@ -33,6 +33,7 @@ class App extends Component {
             <Menu.Item key="etime">eTime(工时)</Menu.Item>
             <Menu.Item key="qm">eQuality(稽查)</Menu.Item>
             <Menu.Item key="bi">BI(报表)</Menu.Item>
+            <Menu.Item key="bi-etmf">BI-ETMF(报表)</Menu.Item>
           </Menu>
         </Header>
         <Content style={{ padding: "0 50px" }}>
