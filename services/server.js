@@ -237,7 +237,7 @@ app.get("/intl/export", (req, res) => {
     {
       i18nKey: { $regex: /.*?/ },
       category: { $regex: category },
-      appId: { $regex: appId },
+      appId: { $eq: appId },
     },
     (err, doc) => {
       let data = [];
@@ -280,7 +280,7 @@ app.get("/int/exportProCN", (req, res) => {
     {
       i18nKey: { $regex: /.*?/ },
       category: { $regex: category },
-      appId: { $regex: appId },
+      appId: { $eq: appId },
     },
     (err, doc) => {
       let data = [];
@@ -310,7 +310,7 @@ app.get("/int/exportProEN", (req, res) => {
     {
       i18nKey: { $regex: /.*?/ },
       category: { $regex: category },
-      appId: { $regex: appId },
+      appId: { $eq: appId },
     },
     (err, doc) => {
       let data = [];
